@@ -12,13 +12,14 @@ public class BeanDefinition {
     private final Class<?> keyType;
     private final String name;
     private final Class<?> objectType;
+    private Class<?> proxyType;
 
     private boolean isLazyInit = false;
     private boolean isSingleton = true;
     private boolean isFactoryBean = false;
     private boolean needInject = false;
     private Boolean needCreated;
-    private Boolean isAspect;
+    private boolean isAspect = false;
 
     private Field[] injectFields;
     private Field[] constantFields;
@@ -32,7 +33,10 @@ public class BeanDefinition {
     private Method[] preDestroyMethods;
 
     private BeanDefinition factoryDef;
-    private BeanDefinition[] aspectDefs;
+
+    //TODO: just a test, delete this after finish aop
+    private boolean hasAspect;
+
 
     BeanDefinition(Class<?> keyType, Class<?> objectType, String name) {
         this.keyType = keyType;
@@ -54,6 +58,10 @@ public class BeanDefinition {
 
     public Class<?> getKeyType() {
         return keyType;
+    }
+
+    public Class<?> getProxyType() {
+        return proxyType;
     }
 
     public String getName() {
@@ -119,8 +127,8 @@ public class BeanDefinition {
         return factoryDef;
     }
 
-    public BeanDefinition[] getAspectDefs() {
-        return aspectDefs;
+    public void setProxyType(Class<?> proxyType) {
+        this.proxyType = proxyType;
     }
 
     void setIsLazyInit(boolean lazyInit) {
@@ -165,10 +173,6 @@ public class BeanDefinition {
         this.isFactoryBean = isFactoryBean;
     }
 
-    void setAspectDefs(BeanDefinition[] aspectDefs) {
-        this.aspectDefs = aspectDefs;
-    }
-
     public void setCreated() {
         if (needCreated == null) return;
         if (needCreated) {
@@ -198,5 +202,13 @@ public class BeanDefinition {
 
     void setConstantFields(Field[] constantFields) {
         this.constantFields = constantFields;
+    }
+
+    public boolean isHasAspect() {
+        return hasAspect;
+    }
+
+    public void setHasAspect(boolean hasAspect) {
+        this.hasAspect = hasAspect;
     }
 }

@@ -1,6 +1,7 @@
 package fireal.core;
 
 import fireal.anno.Profile;
+import fireal.util.DebugUtil;
 import nonapi.io.github.classgraph.utils.Assert;
 
 import java.util.Arrays;

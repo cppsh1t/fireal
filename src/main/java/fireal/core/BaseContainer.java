@@ -96,8 +96,8 @@ public class BaseContainer implements Container {
     private void readFlag(Class<?> clazz) {
         var annos = clazz.getAnnotations();
         for (var anno : annos) {
-            if (anno.getClass().isAnnotationPresent(Flag.class)) {
-                String flagName = anno.getClass().getAnnotation(Flag.class).value();
+            if (anno.annotationType().isAnnotationPresent(Flag.class)) {
+                String flagName = anno.annotationType().getAnnotation(Flag.class).value();
                 flagsMap.put(flagName, true);
             }
         }
