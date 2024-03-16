@@ -221,6 +221,14 @@ public class BaseContainer implements Container {
         objectFactory.injectBean(bean, definition);
     }
 
+    public BeanDefinition getBeanDefinition(Class<?> clazz) {
+        return beanDefinitionHolder.getWithFirstKey(clazz);
+    }
+
+    public BeanDefinition getBeanDefinition(String name) {
+        return beanDefinitionHolder.getWithSecondKey(name);
+    }
+
     /**
      * 返回所有的Bean定义
      *

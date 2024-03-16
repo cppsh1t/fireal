@@ -1,5 +1,6 @@
 package fireal.core;
 
+import fireal.definition.ProxyableBeanDefinitionBuilder;
 import fireal.proxy.AspectChunk;
 import fireal.proxy.StringInterceptor;
 import fireal.util.ProxyUtil;
@@ -14,6 +15,7 @@ import java.util.List;
 public class ProxyableContainer extends PostProcessContainer{
 
     private boolean enableProxy = false;
+    private ProxyableBeanDefinitionBuilder aspectUpdater;
 
     /**
      * 构造一个容器
@@ -62,36 +64,14 @@ public class ProxyableContainer extends PostProcessContainer{
             }
         }
 
-        //TODO: just a test for aspect, fix in future
-        for (var chunk : aspectChunks) {
-            var targetClass = chunk.getTargetClass();
-            var targetDef = beanDefinitionHolder.getWithFirstKey(targetClass);
-            if (targetDef == null) continue;
-            if (targetDef.getProxyType() != null) continue;
-
-            var proxyClass = new ByteBuddy()
-                    .subclass(targetDef.getObjectType())
-                    .method(ElementMatchers.is(chunk.getTargetMethod()))
-                    .intercept(MethodDelegation.to(new StringInterceptor("Haha, this is Before")))
-                    .make()
-                    .load(getClass().getClassLoader())
-                    .getLoaded();
-
-            targetDef.setProxyType(proxyClass);
-        }
+        aspectUpdater.updateAspectTypes(aspectChunks);
     }
 
 
     @Override
     protected void init() {
-        //TODO: test code
-        var objectFactory = new DefaultObjectFactory((keyType, name, useCache) -> {
-            var def = beanDefinitionHolder.get(keyType, name);
-            if (def == null) return null;
-            return getBean(def, useCache);
-        }, (def) -> getBean(def, false));
-        this.objectFactory = new ProxyableObjectFactory(objectFactory);
-
+        aspectUpdater = new ProxyableBeanDefinitionBuilder(this::getBeanDefinition);
+        beanDefinitionBuilder = aspectUpdater;
         super.init();
     }
 }

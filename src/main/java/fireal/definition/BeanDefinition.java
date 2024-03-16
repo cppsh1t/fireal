@@ -34,9 +34,6 @@ public class BeanDefinition {
 
     private BeanDefinition factoryDef;
 
-    //TODO: just a test, delete this after finish aop
-    private boolean hasAspect;
-
 
     BeanDefinition(Class<?> keyType, Class<?> objectType, String name) {
         this.keyType = keyType;
@@ -127,7 +124,7 @@ public class BeanDefinition {
         return factoryDef;
     }
 
-    public void setProxyType(Class<?> proxyType) {
+    void setProxyType(Class<?> proxyType) {
         this.proxyType = proxyType;
     }
 
@@ -204,11 +201,4 @@ public class BeanDefinition {
         this.constantFields = constantFields;
     }
 
-    public boolean isHasAspect() {
-        return hasAspect;
-    }
-
-    public void setHasAspect(boolean hasAspect) {
-        this.hasAspect = hasAspect;
-    }
 }
