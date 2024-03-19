@@ -1,5 +1,6 @@
 package fireal.core;
 
+import fireal.definition.BeanDefinition;
 import fireal.definition.ProxyableBeanDefinitionBuilder;
 import fireal.proxy.AspectChunk;
 import fireal.proxy.StringInterceptor;
@@ -11,6 +12,7 @@ import net.bytebuddy.matcher.ElementMatchers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProxyableContainer extends PostProcessContainer{
 
@@ -54,16 +56,11 @@ public class ProxyableContainer extends PostProcessContainer{
         super.scanBeanDefs();
         if (!enableProxy) return;
 
-        List<AspectChunk> aspectChunks = new ArrayList<>();
         var beanDefs = beanDefinitionHolder.values();
-
-        for (var def : beanDefs) {
-            if (def.isAspect()) {
-                Collection<AspectChunk> chunks = ProxyUtil.makeAspectChunks(def);
-                if (chunks != null) aspectChunks.addAll(chunks);
-            }
-        }
-
+        var aspectChunks = beanDefs.stream().filter(BeanDefinition::isAspect)
+                .map(ProxyUtil::makeAspectChunks)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
         aspectUpdater.updateAspectTypes(aspectChunks);
     }
 

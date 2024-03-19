@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 public @interface After {
 
     String value();
+
+    Class<?>[] paramTypes() default {};
 }

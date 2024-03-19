@@ -1,9 +1,10 @@
 package fireal.util;
 
-import fireal.anno.proxy.Aspect;
-import fireal.anno.proxy.AspectEnhancementType;
+import fireal.anno.proxy.*;
 import fireal.definition.BeanDefinition;
 import fireal.proxy.AspectChunk;
+import fireal.proxy.ParamInjectRule;
+import fireal.structure.Tuple;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -14,15 +15,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ProxyUtil {
 
-    // 定义正则表达式
-    private static final String regex =
-            "^[A-Za-z][\\w_]*(?:\\.[\\w_]+)+\\(\\s*(?:(?:[A-Za-z_][\\w_]*)(?:\\s*,\\s*(?:[A-Za-z_][\\w_]*|\\d+))*)?\\s*\\)$";
-
-    // 编译正则表达式
-    private static final Pattern pattern = Pattern.compile(regex);
 
     public static Annotation getEnhancementAnno(Method method) {
         var annos = method.getAnnotations();
@@ -41,7 +37,8 @@ public class ProxyUtil {
             if (getMethod.getReturnType() != String.class) throw new RuntimeException();
             try {
                 String methodInfo = (String) getMethod.invoke(annotation);
-                return parseEnhancedMethodInfo(methodInfo, aspectDef);
+                Class<?> [] paramTypes = (Class<?>[]) annotation.getClass().getMethod("paramTypes").invoke(annotation);
+                return parseEnhancedMethodInfo(methodInfo, paramTypes, aspectDef);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException();
             }
@@ -51,30 +48,54 @@ public class ProxyUtil {
     }
 
     //TODO: make new exception type to replace runtimeException
-    private static AspectChunk parseEnhancedMethodInfo(String methodInfo, BeanDefinition aspectDef) {
-        Matcher matcher = pattern.matcher(methodInfo);
-        if (!matcher.matches()) throw new RuntimeException();
-
-        String beforeParentheses = matcher.group().split("\\(")[0].trim();
-        String insideParentheses = matcher.group().replaceAll("^[^(]*\\(([^)]*)\\).*", "$1");
-        String[] aheadInfos = beforeParentheses.split("\\.");
-        String methodName = aheadInfos[aheadInfos.length - 1];
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < aheadInfos.length - 1; i++) {
-            if (i == aheadInfos.length - 2) {
-                stringBuilder.append(aheadInfos[i]);
-            } else {
-                stringBuilder.append(aheadInfos[i]).append('.');
-            }
-        }
-        String className = stringBuilder.toString();
+    private static AspectChunk parseEnhancedMethodInfo(String methodInfo, Class<?>[] paramTypes, BeanDefinition aspectDef) {
+        if (!methodInfo.contains(".")) throw new RuntimeException();
+        String[] infoArray = methodInfo.split("\\.");
+        String methodName = infoArray[infoArray.length - 1];
+        String className = Arrays.stream(infoArray).limit(infoArray.length - 1).collect(Collectors.joining("."));
+        Method targetMethod;
+        Class<?> targetClass;
         try {
-            Class<?> targetClass = Class.forName(className);
-            Method targetMethod = targetClass.getMethod(methodName);
-            return new AspectChunk(aspectDef, targetClass, targetMethod, insideParentheses);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            targetClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            System.out.println(className);
             throw new RuntimeException();
         }
+
+        try {
+            if (paramTypes.length == 0) {
+                targetMethod = targetClass.getMethod(methodName);
+            } else {
+                targetMethod = targetClass.getMethod(methodName, paramTypes);
+            }
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException();
+        }
+
+        List<Tuple<ParamInjectRule, Object>> paramList = new ArrayList<>();
+        for (var param : targetMethod.getParameters()) {
+            if (param.isAnnotationPresent(ArgName.class)) {
+                var tuple = new Tuple<ParamInjectRule, Object>(ParamInjectRule.BY_NAME, param.getAnnotation(ArgName.class).value());
+                paramList.add(tuple);
+            } else if (param.isAnnotationPresent(ArgNum.class)) {
+                var tuple = new Tuple<ParamInjectRule, Object>(ParamInjectRule.BY_NUM, param.getAnnotation(ArgNum.class).value());
+                paramList.add(tuple);
+            } else if (param.isAnnotationPresent(Args.class)) {
+                var tuple = new Tuple<>(ParamInjectRule.BY_ARGS, null);
+                paramList.add(tuple);
+            } else if (param.isAnnotationPresent(ReturnVal.class)) {
+                var tuple = new Tuple<>(ParamInjectRule.BY_RETURN, null);
+                paramList.add(tuple);
+            }
+        }
+
+        if (paramList.size() == 0) {
+            return new AspectChunk(aspectDef, targetClass, targetMethod);
+        } else {
+            if (paramList.size() != targetMethod.getParameterCount()) throw new RuntimeException();
+            return new AspectChunk(aspectDef, targetClass, targetMethod, paramList);
+        }
+
     }
 
     public static Collection<AspectChunk> makeAspectChunks(BeanDefinition aspectDef) {
@@ -91,7 +112,8 @@ public class ProxyUtil {
             aspectChunks.add(aspectChunk);
         }
 
-        return aspectChunks.size() == 0 ? null : aspectChunks;
+        return aspectChunks;
     }
+
 
 }
