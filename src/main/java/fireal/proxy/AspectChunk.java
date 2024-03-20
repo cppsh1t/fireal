@@ -10,20 +10,28 @@ public class AspectChunk {
 
     private final BeanDefinition aspectDef;
     private final Class<?> targetClass;
+    private final Method interceptorMethod;
     private final Method targetMethod;
+    private final InterceptorMode interceptorMode;
     private Collection<Tuple<ParamInjectRule, Object>> paramInjectTuples;
 
-    public AspectChunk(BeanDefinition aspectDef, Class<?> targetClass, Method targetMethod) {
+    public AspectChunk(InterceptorMode interceptorMode, BeanDefinition aspectDef, Class<?> targetClass,
+                       Method targetMethod, Method interceptorMethod) {
+        this.interceptorMode = interceptorMode;
         this.aspectDef = aspectDef;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
+        this.interceptorMethod = interceptorMethod;
     }
 
-    public AspectChunk(BeanDefinition aspectDef, Class<?> targetClass, Method targetMethod,
-                       Collection<Tuple<ParamInjectRule, Object>> paramInjectTuples) {
+    public AspectChunk(InterceptorMode interceptorMode, BeanDefinition aspectDef, Class<?> targetClass,
+                       Method targetMethod,
+                       Method interceptorMethod, Collection<Tuple<ParamInjectRule, Object>> paramInjectTuples) {
+        this.interceptorMode = interceptorMode;
         this.aspectDef = aspectDef;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
+        this.interceptorMethod = interceptorMethod;
         this.paramInjectTuples = paramInjectTuples;
     }
 
@@ -41,6 +49,14 @@ public class AspectChunk {
 
     public Collection<Tuple<ParamInjectRule, Object>> getParamInjectTuples() {
         return paramInjectTuples;
+    }
+
+    public Method getInterceptorMethod() {
+        return interceptorMethod;
+    }
+
+    public InterceptorMode getInterceptorMode() {
+        return interceptorMode;
     }
 
     @Override

@@ -5,14 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import fireal.proxy.InterceptorMode;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-@AspectEnhancementType(InterceptorMode.BEFORE)
-public @interface Before {
+@Target({ElementType.PARAMETER})
+public @interface Self {
 
-    String value();
-
-    Class<?>[] paramTypes() default {};
 }

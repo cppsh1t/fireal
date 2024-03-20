@@ -2,16 +2,8 @@ package fireal.core;
 
 import fireal.definition.BeanDefinition;
 import fireal.definition.ProxyableBeanDefinitionBuilder;
-import fireal.proxy.AspectChunk;
-import fireal.proxy.StringInterceptor;
 import fireal.util.ProxyUtil;
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.matcher.ElementMatchers;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProxyableContainer extends PostProcessContainer{
@@ -67,7 +59,9 @@ public class ProxyableContainer extends PostProcessContainer{
 
     @Override
     protected void init() {
-        aspectUpdater = new ProxyableBeanDefinitionBuilder(this::getBeanDefinition);
+        aspectUpdater = new ProxyableBeanDefinitionBuilder(this::getBeanDefinition, def -> {
+            return this.getBean(def, false);
+        });
         beanDefinitionBuilder = aspectUpdater;
         super.init();
     }
