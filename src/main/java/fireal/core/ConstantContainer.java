@@ -1,13 +1,10 @@
 package fireal.core;
 
 import fireal.anno.Profile;
-import fireal.util.DebugUtil;
-import nonapi.io.github.classgraph.utils.Assert;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class ConstantContainer extends BaseContainer{
 
@@ -56,7 +53,9 @@ public class ConstantContainer extends BaseContainer{
         super.init();
         ObjectFactory oldObjectFactory = this.objectFactory;
         ConstantObjectFactory newObjectFactory = new ConstantObjectFactory(oldObjectFactory);
-        newObjectFactory.addConstant(profiles);
+        if (profiles != null) {
+            newObjectFactory.addConstant(profiles);
+        }
         this.objectFactory = newObjectFactory;
     }
 }
