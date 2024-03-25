@@ -1,6 +1,5 @@
 package test.component;
 
-import fireal.anno.Component;
 import fireal.processor.BeanPostProcessor;
 
 

@@ -3,16 +3,13 @@ package test;
 import fireal.core.Container;
 import fireal.core.PostProcessContainer;
 import fireal.core.ProxyableContainer;
-import fireal.util.ProxyUtil;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.bind.annotation.*;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.junit.jupiter.api.Test;
 import test.component.Joker;
-import test.component.JokerAspect;
 import test.config.TestConfig;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;

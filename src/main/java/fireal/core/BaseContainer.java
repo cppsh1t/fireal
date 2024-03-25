@@ -2,7 +2,6 @@ package fireal.core;
 
 import fireal.anno.ComponentScan;
 import fireal.anno.Flag;
-import fireal.anno.Profile;
 import fireal.definition.*;
 import fireal.exception.BeanNotFoundException;
 import fireal.exception.ConfigurationException;

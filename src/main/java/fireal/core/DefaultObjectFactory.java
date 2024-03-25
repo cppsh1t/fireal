@@ -4,7 +4,6 @@ import fireal.definition.BeanDefinition;
 import fireal.definition.FactoryBean;
 import fireal.exception.BeanDefinitionException;
 import fireal.exception.BeanNotFoundException;
-import fireal.util.DebugUtil;
 import fireal.util.ReflectUtil;
 
 import java.lang.reflect.InvocationTargetException;

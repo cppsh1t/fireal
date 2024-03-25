@@ -1,6 +1,5 @@
 package test;
 
-import com.sun.tools.javac.Main;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.locks.ReentrantLock;

@@ -2,7 +2,6 @@ package test;
 
 import fireal.core.BaseContainer;
 import org.junit.jupiter.api.Test;
-import test.component.Baz;
 import test.component.Foo;
 import test.config.TestConfig;
 

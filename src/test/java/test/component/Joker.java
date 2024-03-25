@@ -4,8 +4,6 @@ import fireal.anno.Component;
 import fireal.anno.Constant;
 import fireal.anno.Lazy;
 import fireal.anno.PostConstruct;
-import fireal.processor.BeanPostProcessor;
-import fireal.processor.InitializingBean;
 
 @Component
 @Lazy

@@ -1,7 +1,6 @@
 package test.component;
 
 import fireal.anno.Component;
-import fireal.definition.PrototypeFactoryBean;
 import fireal.definition.SingletonFactoryBean;
 import test.entity.Shit;
 

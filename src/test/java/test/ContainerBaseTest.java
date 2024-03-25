@@ -13,10 +13,6 @@ import test.entity.Shit;
 
 public class ContainerBaseTest {
 
-    @Test
-    public void startContainerTest() {
-        Container container = new BaseContainer(TestConfig.class);
-    }
 
     @Test
     public void getBeanTest() {

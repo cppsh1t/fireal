@@ -5,12 +5,9 @@ import fireal.processor.BeanPostProcessor;
 import fireal.processor.DestructionAwareBeanPostProcessor;
 import fireal.processor.DisposableBean;
 import fireal.processor.InitializingBean;
-import fireal.util.ReflectUtil;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Supplier;
 
 public class PostProcessBeanLife implements BeanLife {
 
