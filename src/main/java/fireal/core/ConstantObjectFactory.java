@@ -18,17 +18,21 @@ public class ConstantObjectFactory implements ObjectFactory{
         this.insideFactory = insideFactory;
     }
 
-    public void addConstant(String path) {
+    public void addConstant(String name, Object value) {
+        constantPool.addItem(name, value);
+    }
+
+    public void addConstantFromPath(String path) {
         constantPool.addFile(path);
     }
 
-    public void addConstant(String... paths) {
+    public void addConstantFromPath(String... paths) {
         for (String path : paths) {
             constantPool.addFile(path);
         }
     }
 
-    public void addConstant(Collection<String> paths) {
+    public void addConstantFromPath(Collection<String> paths) {
         for (String path : paths) {
             constantPool.addFile(path);
         }

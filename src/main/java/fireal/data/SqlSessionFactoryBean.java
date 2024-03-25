@@ -20,7 +20,6 @@ public class SqlSessionFactoryBean implements SingletonFactoryBean<SqlSessionFac
 
     private Configuration configuration;
 
-    @Autowired
     public SqlSessionFactoryBean(DataSource dataSource) {
         Environment environment = new Environment("development", transactionFactory, dataSource);
         configuration = new org.apache.ibatis.session.Configuration(environment);

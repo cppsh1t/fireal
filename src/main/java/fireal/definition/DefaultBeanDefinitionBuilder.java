@@ -151,16 +151,7 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
         }
         // endregion
 
-        String name;
-        // region getName
-        if (factoryDef.getCreateMode() == CreateMode.BY_CONSTRUCTOR) {
-            name = StringUtil.lowerFirst(clazz.getSimpleName());
-        } else if (factoryDef.getCreateMode() == CreateMode.BY_METHOD) {
-            name = StringUtil.lowerFirst(factoryDef.getCreateMethod().getName());
-        } else {
-            throw new BeanDefinitionException("Can't make nested FactoryBean Definition");
-        }
-        // endregion
+        String name = StringUtil.lowerFirst(clazz.getSimpleName());
 
         var def = new BeanDefinition(clazz, name);
         def.setIsSingleton(isSingleton);

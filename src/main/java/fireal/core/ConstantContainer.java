@@ -54,7 +54,7 @@ public class ConstantContainer extends BaseContainer{
         ObjectFactory oldObjectFactory = this.objectFactory;
         ConstantObjectFactory newObjectFactory = new ConstantObjectFactory(oldObjectFactory);
         if (profiles != null) {
-            newObjectFactory.addConstant(profiles);
+            newObjectFactory.addConstantFromPath(profiles);
         }
         this.objectFactory = newObjectFactory;
     }

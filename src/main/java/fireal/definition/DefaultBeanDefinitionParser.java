@@ -60,7 +60,7 @@ public class DefaultBeanDefinitionParser implements BeanDefinitionParser{
         try {
             return clazz.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new BeanDefinitionException("Can't find right Constructor");
+            throw new BeanDefinitionException("Can't find right Constructor on class " + clazz.getName());
         }
     }
 

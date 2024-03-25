@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +14,14 @@ public class ConstantPool {
 
     private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private final Map<String, Object> map = new HashMap<>();
+
+    public Collection<String> getKeys() {
+        return map.keySet();
+    }
+
+    public void addItem(String key, Object value) {
+        map.putIfAbsent(key, value);
+    }
 
     public void addFile(String path) {
         InputStream inputStream = ConstantPool.class.getResourceAsStream(path);

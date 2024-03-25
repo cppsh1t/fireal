@@ -28,10 +28,12 @@ public abstract class MapperFactoryBean<T> implements SingletonFactoryBean<T> {
         return sqlSessionFactory.openSession().getMapper(mapereClass);
     }
 
+
+    //TODO: 这种写法是错的，还是得生成类型，或者用注解，明天看看把
     public static <T> Class<? extends MapperFactoryBean<T>> makeMapperFactoryBeanClasses(Class<T> mapperClass, String objectName) {
         
         @Component
-        class InnerMapperFactoryBean extends MapperFactoryBean<T>{
+         class InnerMapperFactoryBean extends MapperFactoryBean<T>{
         
             @Autowired
             public InnerMapperFactoryBean(SqlSessionFactory sqlSessionFactory) {
