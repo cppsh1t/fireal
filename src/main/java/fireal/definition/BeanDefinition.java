@@ -5,15 +5,17 @@ import fireal.processor.BeanPostProcessor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
 
 public class BeanDefinition {
 
     private final Class<?> keyType;
-    private final String name;
-    private final Class<?> objectType;
+    private String name;
+    private Class<?> objectType;
     private Class<?> proxyType;
-
+    private Class<?> productType;
+ 
     private boolean isLazyInit = false;
     private boolean isSingleton = true;
     private boolean isFactoryBean = false;
@@ -122,6 +124,25 @@ public class BeanDefinition {
 
     public BeanDefinition getFactoryDef() {
         return factoryDef;
+    }
+
+    public Class<?> getProductType() {
+        return productType;
+    }
+
+    public void initProductType() {
+        if (isFactoryBean) {
+            productType = Arrays.stream(objectType.getGenericInterfaces()).parallel()
+                .filter(type -> type instanceof ParameterizedType)
+                .map(type -> (ParameterizedType) type)
+                .filter(type -> type.getRawType() == SingletonFactoryBean.class || type.getRawType() == PrototypeFactoryBean.class)
+                .map(type -> (Class<?>) type.getActualTypeArguments()[0])
+                .findFirst().orElse(null);
+        }
+    }
+
+    void setName(String name) {
+        this.name = name;
     }
 
     void setProxyType(Class<?> proxyType) {

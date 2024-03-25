@@ -21,6 +21,7 @@ public class ConstantPool {
 
     public void addFile(InputStream inputStream) {
         try {
+            @SuppressWarnings("unchecked")
             Map<String, Object> mapOfFile = mapper.readValue(inputStream, Map.class);
             map.putAll(mapOfFile);
         } catch (MismatchedInputException ignored) {
@@ -38,6 +39,7 @@ public class ConstantPool {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private Object getByNames(String[] names) {
         Map currentMap = map;
         Object result = null;

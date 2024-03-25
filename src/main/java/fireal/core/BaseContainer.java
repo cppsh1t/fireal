@@ -23,7 +23,6 @@ public class BaseContainer implements Container {
     protected BeanLife beanLife;
 
     protected BeanDefinitionHolder beanDefinitionHolder;
-    protected BeanDefinitionHolder beanDefinitionCache;//FIXME: 好像没用？
 
     protected final Map<BeanDefinition, Object> singletonObjects = new ConcurrentHashMap<>();
     protected final Map<BeanDefinition, Object> singletonCache = new ConcurrentHashMap<>();
@@ -70,7 +69,6 @@ public class BaseContainer implements Container {
         beanDefinitionBuilder = (beanDefinitionBuilder == null) ? new DefaultBeanDefinitionBuilder() : beanDefinitionBuilder;
         beanScanner = (beanScanner == null) ? new DefaultBeanScanner() : beanScanner;
         beanDefinitionHolder = (beanDefinitionHolder == null) ? new BeanDefinitionHolder() : beanDefinitionHolder;
-        beanDefinitionCache = (beanDefinitionCache == null) ? new BeanDefinitionHolder() : beanDefinitionCache;
         objectFactory = (objectFactory == null) ? new DefaultObjectFactory((keyType, name, useCache) -> {
             var def = beanDefinitionHolder.get(keyType, name);
             if (def == null) return null;
@@ -150,6 +148,7 @@ public class BaseContainer implements Container {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(Class<T> clazz) {
         var def = beanDefinitionHolder.get(clazz, null);
@@ -258,4 +257,6 @@ public class BaseContainer implements Container {
         postProcessors.clear();
         beanDefinitionHolder.clear();
     }
+
+
 }

@@ -10,22 +10,33 @@ import fireal.util.StringUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 
 public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
 
     private final BeanDefinitionParser parser = new DefaultBeanDefinitionParser();
 
+    private final String nameRegex = "^[a-zA-Z][a-zA-Z0-9_]*$";
+
     public BeanDefinition createFromClass(Class<?> clazz) {
         var anno = parser.getBeanAnno(clazz);
-        if (anno == null) return null;
+        if (anno == null)
+            return null;
 
         var keyType = parser.getBeanKeyType(anno);
         var name = parser.getBeanName(anno);
 
-        if (keyType == EmptyType.class) keyType = clazz;
-        if (name.isEmpty()) name = StringUtil.lowerFirst(clazz.getSimpleName());
+        if (keyType == EmptyType.class)
+            keyType = clazz;
+        boolean hasSpecifiedName = true;
+
+        if (name.isEmpty()) {
+            hasSpecifiedName = false;
+            name = StringUtil.lowerFirst(clazz.getSimpleName());
+        } else {
+            if (!name.matches(nameRegex))
+                throw new BeanDefinitionException("BeanName can't be " + name);
+        }
 
         var isSingleton = parser.isSingletonBean(clazz);
         var isLazyInit = parser.isLazyInitBean(clazz);
@@ -70,6 +81,10 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
 
         if (FactoryBean.class.isAssignableFrom(clazz)) {
             def.setIsFactoryBean(true);
+            def.initProductType();
+            if (!hasSpecifiedName) {
+                def.setName("&" + def.getName() + "&" + def.getProductType().getSimpleName());
+            }
         }
 
         if (clazz.isAnnotationPresent(Aspect.class)) {
@@ -82,16 +97,24 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
     @Override
     public BeanDefinition createFromMethod(Method method, Object invoker) {
         var clazz = method.getReturnType();
-        if (clazz == void.class) throw new BeanDefinitionException("Bean type can't be void");
+        if (clazz == void.class)
+            throw new BeanDefinitionException("Bean type can't be void");
 
         var anno = parser.getBeanAnno(method);
-        if (anno == null) return null;
+        if (anno == null)
+            return null;
 
         var keyType = parser.getBeanKeyType(anno);
         var name = parser.getBeanName(anno);
 
-        if (keyType == EmptyType.class) keyType = clazz;
-        if (name.isEmpty()) name = StringUtil.lowerFirst(method.getName());
+        if (keyType == EmptyType.class)
+            keyType = clazz;
+        if (name.isEmpty()) {
+            name = StringUtil.lowerFirst(method.getName());
+        } else {
+            if (!name.matches(nameRegex))
+                throw new BeanDefinitionException("BeanName can't be " + name);
+        }
 
         var isLazyInit = parser.isLazyInitBean(method);
 
@@ -104,19 +127,21 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
 
         if (FactoryBean.class.isAssignableFrom(clazz)) {
             def.setIsFactoryBean(true);
+            def.initProductType();
         }
 
         return def;
     }
 
     public BeanDefinition createFromFactoryBean(BeanDefinition factoryDef) {
-        if (!factoryDef.isFactoryBean()) return null;
+        if (!factoryDef.isFactoryBean())
+            return null;
 
         var factoryClass = factoryDef.getObjectType();
-        var clazz = getFactoryBeanProductType(factoryDef.getObjectType());
+        var clazz = factoryDef.getProductType();
 
         boolean isSingleton;
-        //region getIsSingleton
+        // region getIsSingleton
         if (SingletonFactoryBean.class.isAssignableFrom(factoryClass)) {
             isSingleton = true;
         } else if (PrototypeFactoryBean.class.isAssignableFrom(factoryClass)) {
@@ -124,10 +149,10 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
         } else {
             throw new BeanDefinitionException("Don't create other FactoryBean type");
         }
-        //endregion
+        // endregion
 
         String name;
-        //region getName
+        // region getName
         if (factoryDef.getCreateMode() == CreateMode.BY_CONSTRUCTOR) {
             name = StringUtil.lowerFirst(clazz.getSimpleName());
         } else if (factoryDef.getCreateMode() == CreateMode.BY_METHOD) {
@@ -135,7 +160,7 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
         } else {
             throw new BeanDefinitionException("Can't make nested FactoryBean Definition");
         }
-        //endregion
+        // endregion
 
         var def = new BeanDefinition(clazz, name);
         def.setIsSingleton(isSingleton);
@@ -143,14 +168,5 @@ public class DefaultBeanDefinitionBuilder implements BeanDefinitionBuilder {
         def.setFactoryDef(factoryDef);
         def.setCreateMode(CreateMode.BY_FACTORY_BEAN);
         return def;
-    }
-
-    public Class<?> getFactoryBeanProductType(Class<?> clazz) {
-        return Arrays.stream(clazz.getGenericInterfaces()).parallel()
-                .filter(type -> type instanceof ParameterizedType)
-                .map(type -> (ParameterizedType) type)
-                .filter(type -> type.getRawType() == SingletonFactoryBean.class || type.getRawType() == PrototypeFactoryBean.class)
-                .map(type -> (Class<?>) type.getActualTypeArguments()[0])
-                .findFirst().orElse(null);
     }
 }
