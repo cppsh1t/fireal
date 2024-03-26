@@ -14,7 +14,9 @@ public class DefaultBeanScanner implements BeanScanner {
     @Override
     public Collection<BeanDefinition> scanBeanDefinitions(BeanDefinitionBuilder builder, String... allPackageNames) {
         var defList = new ArrayList<BeanDefinition>();
+        if (allPackageNames == null || allPackageNames.length == 0) return defList;
         ClassGraph classGraph = new ClassGraph();
+        //FIXME: 这里的扫包有问题，等着看看API
         classGraph.acceptPackages(allPackageNames);
         var classInfos = classGraph.scan().getAllClasses();
         var classes = classInfos.loadClasses(true);

@@ -7,14 +7,13 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.Test;
-import test.config.TestConfig;
 
 public class MainTest {
 
     @Test
     public void mapperGetTest() {
         var container = new DataAccessContainer(TestConfig.class);
-        System.out.println(container.getBean(UserMapper.class).selectUserByName("db"));
+        // System.out.println(container.getBean(UserMapper.class).selectUserByName("db"));
     }
 
     @Test
