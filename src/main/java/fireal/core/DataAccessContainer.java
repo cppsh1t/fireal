@@ -93,10 +93,4 @@ public class DataAccessContainer extends ProxyableContainer{
         }
 
     }
-
-    //TODO: delete this
-    public void log() {
-        beanDefinitionHolder.values().forEach(System.out::println);
-    }
-
 }
