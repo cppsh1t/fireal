@@ -18,6 +18,12 @@ public class MainTest {
     }
 
     @Test
+    public void tempTest() {
+        var container = new DataAccessContainer(TestConfig.class);
+        container.log();
+    }
+
+    @Test
     public void mapperFactoryBeanClassMakeTest() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         Class<?> clazz = MapperFactoryBean.makeMapperFactoryBeanClasses(UserMapper.class, "userMapper");
         SqlSessionFactory sqlSessionFactory = null;

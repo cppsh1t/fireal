@@ -1,5 +1,7 @@
 package fireal.definition;
 
+import fireal.anno.ProductType;
+import fireal.exception.BeanDefinitionException;
 import fireal.processor.BeanPostProcessor;
 
 import java.lang.reflect.Constructor;
@@ -138,6 +140,13 @@ public class BeanDefinition {
                 .filter(type -> type.getRawType() == SingletonFactoryBean.class || type.getRawType() == PrototypeFactoryBean.class)
                 .map(type -> (Class<?>) type.getActualTypeArguments()[0])
                 .findFirst().orElse(null);
+            if (productType == null) {
+                if (objectType.isAnnotationPresent(ProductType.class)) {
+                    productType = objectType.getAnnotation(ProductType.class).value();
+                    return;
+                }
+                throw new BeanDefinitionException("Can't find productType from FactoryBean Definition" + this);
+            }
         }
     }
 

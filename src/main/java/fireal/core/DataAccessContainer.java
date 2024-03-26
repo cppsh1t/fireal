@@ -8,12 +8,16 @@ import java.util.Set;
 import fireal.anno.Component;
 import fireal.anno.Constant;
 import fireal.anno.data.MapperScan;
+import fireal.data.DefaultMapperScanner;
+import fireal.data.MapperFactoryBean;
+import fireal.data.MapperScanner;
 import fireal.data.SqlSessionFactoryBeanProcessor;
 import fireal.definition.BeanDefinition;
 
 public class DataAccessContainer extends ProxyableContainer{
 
     private Set<String> mapperPaths;
+    private MapperScanner mapperScanner;
 
     /**
      * 构造一个容器
@@ -54,6 +58,7 @@ public class DataAccessContainer extends ProxyableContainer{
 
     @Override
     protected void init() {
+        mapperScanner = new DefaultMapperScanner();
         super.init();
         if (objectFactory instanceof ConstantObjectFactory constantObjectFactory) {
             constantObjectFactory.addConstant("mapperPaths", mapperPaths);
@@ -62,9 +67,14 @@ public class DataAccessContainer extends ProxyableContainer{
 
     @Override
     protected void scanBeanDefs() {
-        BeanDefinition def = beanDefinitionBuilder.createFromClass(SqlSessionFactoryBeanProcessorImpl.class);
-        beanDefinitionHolder.put(def.getKeyType(), def.getName(), def);
-        super.scanBeanDefs();
+        BeanDefinition sqlSessionFactoryBeanProcessorDef = beanDefinitionBuilder.createFromClass(SqlSessionFactoryBeanProcessorImpl.class);
+        beanDefinitionHolder.put(sqlSessionFactoryBeanProcessorDef.getKeyType(), sqlSessionFactoryBeanProcessorDef.getName(), sqlSessionFactoryBeanProcessorDef);
+        Collection<Class<?>> mapperClasses = mapperScanner.scanMapperClasses(mapperPaths);
+        Collection<Class<?>> mapperProxyClasses = MapperFactoryBean.makeMapperFactoryBeanClasses(mapperClasses);
+        mapperProxyClasses.stream()
+                .map(clazz -> beanDefinitionBuilder.createFromClass(clazz))
+                .forEach(def -> beanDefinitionHolder.put(def.getKeyType(), def.getName(), def));
+        super.scanBeanDefs();        
     }
 
     @Component(value = SqlSessionFactoryBeanProcessor.class, name = "sqlSessionFactoryBeanProcessor")
@@ -82,6 +92,11 @@ public class DataAccessContainer extends ProxyableContainer{
             return mapperPaths;
         }
 
+    }
+
+    //TODO: delete this
+    public void log() {
+        beanDefinitionHolder.values().forEach(System.out::println);
     }
 
 }

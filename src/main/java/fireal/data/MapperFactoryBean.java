@@ -1,8 +1,14 @@
 package fireal.data;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import fireal.anno.Autowired;
+import fireal.anno.Component;
+import fireal.anno.ProductType;
 import fireal.definition.SingletonFactoryBean;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.annotation.AnnotationDescription;
@@ -32,13 +38,27 @@ public abstract class MapperFactoryBean<T> implements SingletonFactoryBean<T> {
         return sqlSessionFactory.openSession().getMapper(mapereClass);
     }
 
+    public static Collection<Class<?>> makeMapperFactoryBeanClasses(Collection<Class<?>>mapperClass) {
+        List<Class<?>> classList = new ArrayList<>(mapperClass.size());
+        for(Class<?> clazz : mapperClass) {
+            classList.add(makeMapperFactoryBeanClasses(clazz));
+        }
+        return classList;
+    }
 
-    public static <T> Class<?> makeMapperFactoryBeanClasses(Class<T> mapperClass, String objectName) {
+    public static Class<?> makeMapperFactoryBeanClasses(Class<?> mapperClass) {
+        String name = mapperClass.getSimpleName();
+        return makeMapperFactoryBeanClasses(mapperClass, name);
+    }
+
+    public static Class<?> makeMapperFactoryBeanClasses(Class<?> mapperClass, String objectName) {
         
 
         try {
             Class<?> innnerClass = new ByteBuddy()
                     .subclass(MapperFactoryBean.class)
+                    .annotateType(AnnotationDescription.Builder.ofType(Component.class).build())
+                    .annotateType(AnnotationDescription.Builder.ofType(ProductType.class).define("value", mapperClass).build())
                     .defineConstructor(Visibility.PUBLIC)
                     .withParameter(SqlSessionFactory.class)
                     .intercept(MethodCall.invoke(MapperFactoryBean.class
