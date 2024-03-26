@@ -18,7 +18,7 @@ public class TestConfig {
     @Bean
     public DataSource dataSource() {
         return new PooledDataSource("com.mysql.cj.jdbc.Driver", "jdbc:mysql://localhost:3306/test",
-                "root", "2014manian");
+                "root", "password");
     }
 
     @Bean
