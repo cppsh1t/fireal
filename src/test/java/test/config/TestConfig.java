@@ -1,6 +1,5 @@
 package test.config;
 
-import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import fireal.anno.Bean;
 import fireal.anno.Configuration;
 import fireal.anno.EnableAspectProxy;

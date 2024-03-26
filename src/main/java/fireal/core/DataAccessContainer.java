@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import fireal.anno.Autowired;
 import fireal.anno.Component;
 import fireal.anno.Constant;
 import fireal.anno.data.MapperScan;
@@ -85,8 +84,4 @@ public class DataAccessContainer extends ProxyableContainer{
 
     }
 
-    //TODO: just test delete this
-    public void log() {
-        beanDefinitionHolder.values().forEach(System.out::println);
-    }
 }

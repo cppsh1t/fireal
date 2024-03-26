@@ -3,8 +3,12 @@ package fireal.data;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import fireal.anno.Autowired;
-import fireal.anno.Component;
 import fireal.definition.SingletonFactoryBean;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.annotation.AnnotationDescription;
+import net.bytebuddy.description.modifier.Visibility;
+import net.bytebuddy.implementation.MethodCall;
+
 
 public abstract class MapperFactoryBean<T> implements SingletonFactoryBean<T> {
 
@@ -29,17 +33,28 @@ public abstract class MapperFactoryBean<T> implements SingletonFactoryBean<T> {
     }
 
 
-    //TODO: 这种写法是错的，还是得生成类型，或者用注解，明天看看把
-    public static <T> Class<? extends MapperFactoryBean<T>> makeMapperFactoryBeanClasses(Class<T> mapperClass, String objectName) {
+    public static <T> Class<?> makeMapperFactoryBeanClasses(Class<T> mapperClass, String objectName) {
         
-        @Component
-         class InnerMapperFactoryBean extends MapperFactoryBean<T>{
-        
-            @Autowired
-            public InnerMapperFactoryBean(SqlSessionFactory sqlSessionFactory) {
-                super(sqlSessionFactory, mapperClass, objectName);
-            }
+
+        try {
+            Class<?> innnerClass = new ByteBuddy()
+                    .subclass(MapperFactoryBean.class)
+                    .defineConstructor(Visibility.PUBLIC)
+                    .withParameter(SqlSessionFactory.class)
+                    .intercept(MethodCall.invoke(MapperFactoryBean.class
+                            .getConstructor(SqlSessionFactory.class, Class.class, String.class))
+                            .withArgument(0).with(mapperClass, objectName))
+                    .annotateMethod(AnnotationDescription.Builder.ofType(Autowired.class).build())
+                    .make()
+                    .load(MapperFactoryBean.class.getClassLoader())
+                    .getLoaded();
+            return innnerClass;
+        } catch (NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
         }
-        return InnerMapperFactoryBean.class;
+
+        
+
+        return null;
     }
 }
