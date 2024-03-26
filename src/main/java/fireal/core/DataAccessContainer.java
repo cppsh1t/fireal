@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import fireal.anno.Component;
 import fireal.anno.Constant;
@@ -14,7 +15,7 @@ import fireal.data.MapperScanner;
 import fireal.data.SqlSessionFactoryBeanProcessor;
 import fireal.definition.BeanDefinition;
 
-public class DataAccessContainer extends ProxyableContainer{
+public class DataAccessContainer extends ProxyableContainer {
 
     private Set<String> mapperPaths;
     private MapperScanner mapperScanner;
@@ -28,8 +29,9 @@ public class DataAccessContainer extends ProxyableContainer{
 
     /**
      * 构造一个容器
+     *
      * @param configClass 配置类
-     * @param autoStart 是否自启动
+     * @param autoStart   是否自启动
      */
     public DataAccessContainer(Class<?> configClass, boolean autoStart) {
         super(configClass, autoStart);
@@ -37,6 +39,7 @@ public class DataAccessContainer extends ProxyableContainer{
 
     /**
      * 构造一个容器，并自启动
+     *
      * @param configClass 配置类
      */
     public DataAccessContainer(Class<?> configClass) {
@@ -73,8 +76,13 @@ public class DataAccessContainer extends ProxyableContainer{
         Collection<Class<?>> mapperProxyClasses = MapperFactoryBean.makeMapperFactoryBeanClasses(mapperClasses);
         mapperProxyClasses.stream()
                 .map(clazz -> beanDefinitionBuilder.createFromClass(clazz))
-                .forEach(def -> beanDefinitionHolder.put(def.getKeyType(), def.getName(), def));
-        super.scanBeanDefs();        
+                .peek(def -> beanDefinitionHolder.put(def.getKeyType(), def.getName(), def))
+                .forEach(def -> {
+                    var productDef = beanDefinitionBuilder.createFromFactoryBean(def);
+                    beanDefinitionHolder.put(productDef.getKeyType(), productDef.getName(), productDef);
+                });
+
+        super.scanBeanDefs();
     }
 
     @Component(value = SqlSessionFactoryBeanProcessor.class, name = "sqlSessionFactoryBeanProcessor")
