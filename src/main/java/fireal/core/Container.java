@@ -1,8 +1,5 @@
 package fireal.core;
 
-import fireal.definition.BeanDefinition;
-
-import java.util.Collection;
 
 public interface Container {
 
@@ -22,8 +19,6 @@ public interface Container {
     Object getBean(String name);
 
     void registerConfigClass(Class<?> clazz);
-
-    Collection<BeanDefinition> getBeanDefinitions();
 
     void close();
 }

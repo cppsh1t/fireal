@@ -227,14 +227,6 @@ public class BaseContainer implements Container {
         return beanDefinitionHolder.getWithSecondKey(name);
     }
 
-    /**
-     * 返回所有的Bean定义
-     *
-     * @return 所有的Bean定义
-     */
-    public Collection<BeanDefinition> getBeanDefinitions() {
-        return beanDefinitionHolder.values();
-    }
 
     /**
      * 返回所有的后处理器
